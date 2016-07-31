@@ -1,27 +1,69 @@
 #!/usr/bin/env bash
 
+function cmd_aws {
+  echo "aws $@" 1>&2
+  aws "$@"
+}
+
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
   mkdir -p "$shome/.cache"
 
-  local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
+  if [[ "$#" == 0 ]]; then
+    set -- \
+            instances images-ubuntu images vpcs subnets network-acls \
+            internet-gateways route-tables addresses security-groups tags \
+            volumes snapshots key-pairs load-balancers launch-configurations \
+            auto-scaling-groups 
 
-  set -x
+    echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
+    return $?
+  fi
 
   local cache="$shome/.cache"
 
-  aws ec2 describe-instances > "$cache/instances.json"
-  aws ec2 describe-images --owners 099720109477 > "$cache/images-ubuntu.json"
-  aws ec2 describe-images --owners "$id_account" > "$cache/images.json"
-  aws ec2 describe-vpcs > "$cache/vpcs.json"
-  aws ec2 describe-subnets > "$cache/subnets.json"
-  aws ec2 describe-network-acls > "$cache/network-acls.json"
-  aws ec2 describe-internet-gateways > "$cache/internet-gateways.json"
-  aws ec2 describe-route-tables > "$cache/route-tables.json"
-  aws ec2 describe-addresses > "$cache/addresses.json"
-  aws ec2 describe-security-groups > "$cache/security-groups.json"
+  while [[ -n "${1:-}" ]]; do
+    case "$1" in
+      instances)
+        cmd_aws ec2 describe-instances > "$cache/instances.json" ;;
+      images-ubuntu)
+        cmd_aws ec2 describe-images --owners 099720109477 > "$cache/images-ubuntu.json" ;;
+      images)
+        local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
+        cmd_aws ec2 describe-images --owners "$id_account" > "$cache/images.json" ;;
+      vpcs)
+        cmd_aws ec2 describe-vpcs > "$cache/vpcs.json" ;;
+      subnets)
+        cmd_aws ec2 describe-subnets > "$cache/subnets.json" ;;
+      network-acls)
+        cmd_aws ec2 describe-network-acls > "$cache/network-acls.json" ;;
+      internet-gateways)
+        cmd_aws ec2 describe-internet-gateways > "$cache/internet-gateways.json" ;;
+      route-tables)
+        cmd_aws ec2 describe-route-tables > "$cache/route-tables.json" ;;
+      addresses)
+        cmd_aws ec2 describe-addresses > "$cache/addresses.json" ;;
+      security-groups)
+        cmd_aws ec2 describe-security-groups > "$cache/security-groups.json" ;;
+      tags)
+        cmd_aws ec2 describe-tags > "$cache/tags.json" ;;
+      volumes)
+        cmd_aws ec2 describe-volumes > "$cache/volumes.json" ;;
+      snapshots)
+        cmd_aws ec2 describe-snapshots > "$cache/snapshots.json" ;;
+      key-pairs)
+        cmd_aws ec2 describe-key-pairs > "$cache/key-pairs.json" ;;
+      load-balancers)
+        cmd_aws elb describe-load-balancers > "$cache/load-balancers.json" ;;
+      launch-configurations)
+        cmd_aws autoscaling describe-launch-configurations > "$cache/launch-configurations.json" ;;
+      auto-scaling-groups)
+        cmd_aws autoscaling describe-auto-scaling-groups > "$cache/auto-scaling-groups.json" ;;
+    esac
+    shift
+  done
 }
 
 source sub "$BASH_SOURCE" "$@"
