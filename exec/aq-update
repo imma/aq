@@ -16,7 +16,7 @@ function main {
             instances images-ubuntu images vpcs subnets network-acls \
             internet-gateways route-tables addresses security-groups tags \
             volumes snapshots key-pairs load-balancers launch-configurations \
-            auto-scaling-groups 
+            auto-scaling-groups iam-users iam-groups iam-roles
 
     echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
     return $?
@@ -61,6 +61,12 @@ function main {
         cmd_aws autoscaling describe-launch-configurations > "$cache/launch-configurations.json" ;;
       auto-scaling-groups)
         cmd_aws autoscaling describe-auto-scaling-groups > "$cache/auto-scaling-groups.json" ;;
+      iam-users)
+        cmd_aws iam list-users > "$cache/iam-users.json" ;;
+      iam-groups)
+        cmd_aws iam list-groups > "$cache/iam-groups.json" ;;
+      iam-roles)
+        cmd_aws iam list-roles > "$cache/iam-roles.json" ;;
     esac
     shift
   done
