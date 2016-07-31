@@ -10,9 +10,18 @@ function main {
 
   set -x
 
-  aws ec2 describe-instances > "$shome/.cache/din.json"
-  aws ec2 describe-images --owners 099720109477 > "$shome/.cache/dim-ubuntu.json"
-  aws ec2 describe-images --owners "$id_account" > "$shome/.cache/dim.json"
+  local cache="$shome/.cache"
+
+  aws ec2 describe-instances > "$cache/instances.json"
+  aws ec2 describe-images --owners 099720109477 > "$cache/images-ubuntu.json"
+  aws ec2 describe-images --owners "$id_account" > "$cache/images.json"
+  aws ec2 describe-vpcs > "$cache/vpcs.json"
+  aws ec2 describe-subnets > "$cache/subnets.json"
+  aws ec2 describe-network-acls > "$cache/network-acls.json"
+  aws ec2 describe-internet-gateways > "$cache/internet-gateways.json"
+  aws ec2 describe-route-tables > "$cache/route-tables.json"
+  aws ec2 describe-addresses > "$cache/addresses.json"
+  aws ec2 describe-security-groups > "$cache/security-groups.json"
 }
 
 source sub "$BASH_SOURCE" "$@"
