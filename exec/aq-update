@@ -75,7 +75,7 @@ function main {
 			sns-subscriptions)
 				cmd_aws sns list-subscriptions > "$cache/sns-list-subscriptions.json" ;;
 			sqs-queues)
-				cmd_aws sqs list-queues > "$dache/sqs-list-queues.json" ;;
+				cmd_aws sqs list-queues > "$cache/sqs-list-queues.json" ;;
     esac
     shift
   done
