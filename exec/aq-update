@@ -16,7 +16,8 @@ function main {
             instances images-ubuntu images vpcs subnets network-acls \
             internet-gateways route-tables addresses security-groups tags \
             volumes snapshots key-pairs load-balancers launch-configurations \
-            auto-scaling-groups iam-users iam-groups iam-roles s3-buckets
+						auto-scaling-groups iam-users iam-groups iam-roles s3-buckets \
+						sns-topics sns-subscriptions sqs-queues 
 
     echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
     return $?
@@ -69,6 +70,12 @@ function main {
         cmd_aws iam list-roles > "$cache/iam-roles.json" ;;
       s3-bucket)
         cmd_aws s3api list-buckets > "$cache/s3-buckets.json" ;;
+			sns-topics)
+				cmd_aws sns list-topics > "$cache/sns-topics.json" ;;
+			sns-subscriptions)
+				cmd_aws sns list-subscriptions > "$cache/sns-list-subscriptions.json" ;;
+			sqs-queues)
+				cmd_aws sqs list-queues > "$dache/sqs-list-queues.json" ;;
     esac
     shift
   done
