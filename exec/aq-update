@@ -6,7 +6,13 @@ function main {
 
   mkdir -p "$shome/.cache"
 
+  local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
+
+  set -x
+
   aws ec2 describe-instances > "$shome/.cache/din.json"
+  aws ec2 describe-images --owners 099720109477 > "$shome/.cache/dim-ubuntu.json"
+  aws ec2 describe-images --owners "$id_account" > "$shome/.cache/dim.json"
 }
 
 source sub "$BASH_SOURCE" "$@"
