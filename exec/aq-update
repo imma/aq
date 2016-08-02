@@ -18,7 +18,8 @@ function main {
             volumes snapshots key-pairs load-balancers launch-configurations \
 						auto-scaling-groups iam-users iam-groups iam-roles s3-buckets \
             sns-topics sns-subscriptions sqs-queues vpc-endoint-services \
-            vpc-endoints vpc-peering-connections vpn-connections vpn-gateways 
+            vpc-endoints vpc-peering-connections vpn-connections vpn-gateways \
+            route53-hosted-zones
     echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
     return $?
   fi
@@ -87,6 +88,8 @@ function main {
         cmd_aws ec2 describe-vpn-connections ;;
       vpn-gateways)
         cmd_aws ec2 describe-vpn-gateways ;;
+      route53-hosted-zones)
+        cmd_aws route53 list-hosted-zones ;;
     esac > "$cache/$nm_resource.json"
   done
 }
