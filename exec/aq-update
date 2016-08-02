@@ -32,10 +32,10 @@ function main {
       instances)
         cmd_aws ec2 describe-instances ;;
       images-ubuntu)
-        cmd_aws ec2 describe-images --owners 099720109477 ;;
+        cmd_aws ec2 describe-images --owners 099720109477 | jq -S '.Images = (.Images | sort_by(.Name))' ;;
       images)
         local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
-        cmd_aws ec2 describe-images --owners "$id_account" ;;
+        cmd_aws ec2 describe-images --owners "$id_account" | jq -S '.Images = (.Images | sort_by(.Name))' ;;
       vpcs)
         cmd_aws ec2 describe-vpcs ;;
       subnets)
@@ -47,11 +47,11 @@ function main {
       route-tables)
         cmd_aws ec2 describe-route-tables ;;
       addresses)
-        cmd_aws ec2 describe-addresses ;;
+        cmd_aws ec2 describe-addresses | jq -S '.Addresses = (.Addresses| sort_by(.PublicIp))' ;;
       security-groups)
-        cmd_aws ec2 describe-security-groups ;;
+        cmd_aws ec2 describe-security-groups jq -S '.SecurityGroups = (.SecurityGroups | sort_by([.GroupId, .GroupName]))' ;;
       tags)
-        cmd_aws ec2 describe-tags | jq -S '.Tags | sort_by([.ResourceType,.ResourceId,.Key,.Value])' ;;
+        cmd_aws ec2 describe-tags | jq -S '.Tags = (.Tags |  sort_by([.ResourceType,.ResourceId,.Key,.Value]))' ;;
       volumes)
         cmd_aws ec2 describe-volumes ;;
       snapshots)
