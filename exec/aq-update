@@ -69,7 +69,7 @@ function main {
         cmd_aws iam list-groups ;;
       iam-roles)
         cmd_aws iam list-roles ;;
-      s3-bucket)
+      s3-buckets)
         cmd_aws s3api list-buckets ;;
 			sns-topics)
 				cmd_aws sns list-topics ;;
