@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+
+  local nm_resource="$1"; shift
+  local cache="$shome/.cache"
+  cat "$cache/$nm_resource.json"
+}
+
+source sub "$BASH_SOURCE" "$@"

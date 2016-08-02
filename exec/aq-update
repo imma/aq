@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 
 function cmd_aws {
+  local nm_resource="$1"; shift
+
   echo "aws $@" 1>&2
-  aws "$@" | jq -S .
+
+  if [[ -n "${AQ_CACHE:-}" ]]; then
+    aq cat "$nm_resource"
+  else
+    aws "$@" | jq -S .
+  fi
 }
 
 function id_account {
@@ -34,66 +41,69 @@ function main {
   for nm_resource in "$@"; do
     case "$nm_resource" in
       instances)
-        cmd_aws ec2 describe-instances ;;
+        cmd_aws "$nm_resource" ec2 describe-instances ;;
       images-ubuntu)
-        cmd_aws ec2 describe-images --owners 099720109477 | jq -S '.Images = (.Images | sort_by(.Name))' ;;
+        local id_ubuntu='099720109477'
+        cmd_aws "$nm_resource" ec2 describe-images --owners "$id_ubuntu" | jq -S '.Images |= sort_by(.Name) | .Images[].BlockDeviceMappings |= sort_by(.DeviceName)' ;;
       images)
-        cmd_aws ec2 describe-images --owners "$(id_account)" | jq -S '.Images = (.Images | sort_by(.Name))' ;;
+        cmd_aws "$nm_resource" ec2 describe-images --owners "$(id_account)" | jq -S '.Images |= sort_by(.Name)' ;;
       vpcs)
-        cmd_aws ec2 describe-vpcs ;;
+        cmd_aws "$nm_resource" ec2 describe-vpcs ;;
       subnets)
-        cmd_aws ec2 describe-subnets ;;
+        cmd_aws "$nm_resource" ec2 describe-subnets ;;
       network-acls)
-        cmd_aws ec2 describe-network-acls ;;
+        cmd_aws "$nm_resource" ec2 describe-network-acls ;;
       internet-gateways)
-        cmd_aws ec2 describe-internet-gateways ;;
+        cmd_aws "$nm_resource" ec2 describe-internet-gateways ;;
       route-tables)
-        cmd_aws ec2 describe-route-tables ;;
+        cmd_aws "$nm_resource" ec2 describe-route-tables | jq -S '.RouteTables[].Routes |= sort_by(.DestinationCidrBlock)' ;;
       addresses)
-        cmd_aws ec2 describe-addresses | jq -S '.Addresses = (.Addresses| sort_by(.PublicIp))' ;;
+        cmd_aws "$nm_resource" ec2 describe-addresses | jq -S '.Addresses |= sort_by(.PublicIp)' ;;
       security-groups)
-        cmd_aws ec2 describe-security-groups | jq -S '.SecurityGroups = (.SecurityGroups | sort_by([.GroupId, .GroupName]))' ;;
+        cmd_aws "$nm_resource" ec2 describe-security-groups | jq -S '.SecurityGroups |= sort_by([.GroupId, .GroupName])' ;;
       tags)
-        cmd_aws ec2 describe-tags | jq -S '.Tags = (.Tags |  sort_by([.ResourceType,.ResourceId,.Key,.Value]))' ;;
+        cmd_aws "$nm_resource" ec2 describe-tags | jq -S '.Tags |= sort_by([.ResourceType,.ResourceId,.Key,.Value])' ;;
       volumes)
-        cmd_aws ec2 describe-volumes ;;
+        cmd_aws "$nm_resource" ec2 describe-volumes ;;
       snapshots)
-        cmd_aws ec2 describe-snapshots --owners "$(id_account)" ;;
+        cmd_aws "$nm_resource" ec2 describe-snapshots --owner-ids "$(id_account)" ;;
       key-pairs)
-        cmd_aws ec2 describe-key-pairs ;;
+        cmd_aws "$nm_resource" ec2 describe-key-pairs ;;
       load-balancers)
-        cmd_aws elb describe-load-balancers ;;
+        cmd_aws "$nm_resource" elb describe-load-balancers ;;
       launch-configurations)
-        cmd_aws autoscaling describe-launch-configurations ;;
+        cmd_aws "$nm_resource" autoscaling describe-launch-configurations ;;
       auto-scaling-groups)
-        cmd_aws autoscaling describe-auto-scaling-groups ;;
+        cmd_aws "$nm_resource" autoscaling describe-auto-scaling-groups ;;
       iam-users)
-        cmd_aws iam list-users ;;
+        cmd_aws "$nm_resource" iam list-users ;;
       iam-groups)
-        cmd_aws iam list-groups ;;
+        cmd_aws "$nm_resource" iam list-groups ;;
       iam-roles)
-        cmd_aws iam list-roles ;;
+        cmd_aws "$nm_resource" iam list-roles ;;
       s3-buckets)
-        cmd_aws s3api list-buckets ;;
+        cmd_aws "$nm_resource" s3api list-buckets ;;
 			sns-topics)
-				cmd_aws sns list-topics ;;
+				cmd_aws "$nm_resource" sns list-topics ;;
 			sns-subscriptions)
-				cmd_aws sns list-subscriptions ;;
+				cmd_aws "$nm_resource" sns list-subscriptions ;;
 			sqs-queues)
-				cmd_aws sqs list-queues ;;
+				cmd_aws "$nm_resource" sqs list-queues ;;
       vpc-endoint-services)
-        cmd_aws ec2 describe-vpc-endpoint-services ;;
+        cmd_aws "$nm_resource" ec2 describe-vpc-endpoint-services ;;
       vpc-endoints)
-        cmd_aws ec2 describe-vpc-endpoints ;;
+        cmd_aws "$nm_resource" ec2 describe-vpc-endpoints ;;
       vpc-peering-connections)
-        cmd_aws ec2 describe-vpc-peering-connections ;;
+        cmd_aws "$nm_resource" ec2 describe-vpc-peering-connections ;;
       vpn-connections)
-        cmd_aws ec2 describe-vpn-connections ;;
+        cmd_aws "$nm_resource" ec2 describe-vpn-connections ;;
       vpn-gateways)
-        cmd_aws ec2 describe-vpn-gateways ;;
+        cmd_aws "$nm_resource" ec2 describe-vpn-gateways ;;
       route53-hosted-zones)
-        cmd_aws route53 list-hosted-zones ;;
-    esac > "$cache/$nm_resource.json"
+        cmd_aws "$nm_resource" route53 list-hosted-zones ;;
+    esac > "$cache/$nm_resource.json.1"
+    mv "$cache/$nm_resource.json.1" "$cache/$nm_resource.json"
+
   done
 }
 
