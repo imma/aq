@@ -17,67 +17,77 @@ function main {
             internet-gateways route-tables addresses security-groups tags \
             volumes snapshots key-pairs load-balancers launch-configurations \
 						auto-scaling-groups iam-users iam-groups iam-roles s3-buckets \
-						sns-topics sns-subscriptions sqs-queues 
-
+            sns-topics sns-subscriptions sqs-queues vpc-endoint-services \
+            vpc-endoints vpc-peering-connections vpn-connections vpn-gateways 
     echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
     return $?
   fi
 
   local cache="$shome/.cache"
 
-  while [[ -n "${1:-}" ]]; do
-    case "$1" in
+  local nm_resource
+  for nm_resource in "$@"; do
+    case "$nm_resource" in
       instances)
-        cmd_aws ec2 describe-instances > "$cache/instances.json" ;;
+        cmd_aws ec2 describe-instances ;;
       images-ubuntu)
-        cmd_aws ec2 describe-images --owners 099720109477 > "$cache/images-ubuntu.json" ;;
+        cmd_aws ec2 describe-images --owners 099720109477 ;;
       images)
         local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
-        cmd_aws ec2 describe-images --owners "$id_account" > "$cache/images.json" ;;
+        cmd_aws ec2 describe-images --owners "$id_account" ;;
       vpcs)
-        cmd_aws ec2 describe-vpcs > "$cache/vpcs.json" ;;
+        cmd_aws ec2 describe-vpcs ;;
       subnets)
-        cmd_aws ec2 describe-subnets > "$cache/subnets.json" ;;
+        cmd_aws ec2 describe-subnets ;;
       network-acls)
-        cmd_aws ec2 describe-network-acls > "$cache/network-acls.json" ;;
+        cmd_aws ec2 describe-network-acls ;;
       internet-gateways)
-        cmd_aws ec2 describe-internet-gateways > "$cache/internet-gateways.json" ;;
+        cmd_aws ec2 describe-internet-gateways ;;
       route-tables)
-        cmd_aws ec2 describe-route-tables > "$cache/route-tables.json" ;;
+        cmd_aws ec2 describe-route-tables ;;
       addresses)
-        cmd_aws ec2 describe-addresses > "$cache/addresses.json" ;;
+        cmd_aws ec2 describe-addresses ;;
       security-groups)
-        cmd_aws ec2 describe-security-groups > "$cache/security-groups.json" ;;
+        cmd_aws ec2 describe-security-groups ;;
       tags)
-        cmd_aws ec2 describe-tags | jq -S '.Tags | sort_by([.ResourceType,.ResourceId,.Key,.Value])' > "$cache/tags.json" ;;
+        cmd_aws ec2 describe-tags | jq -S '.Tags | sort_by([.ResourceType,.ResourceId,.Key,.Value])' ;;
       volumes)
-        cmd_aws ec2 describe-volumes > "$cache/volumes.json" ;;
+        cmd_aws ec2 describe-volumes ;;
       snapshots)
-        cmd_aws ec2 describe-snapshots > "$cache/snapshots.json" ;;
+        cmd_aws ec2 describe-snapshots ;;
       key-pairs)
-        cmd_aws ec2 describe-key-pairs > "$cache/key-pairs.json" ;;
+        cmd_aws ec2 describe-key-pairs ;;
       load-balancers)
-        cmd_aws elb describe-load-balancers > "$cache/load-balancers.json" ;;
+        cmd_aws elb describe-load-balancers ;;
       launch-configurations)
-        cmd_aws autoscaling describe-launch-configurations > "$cache/launch-configurations.json" ;;
+        cmd_aws autoscaling describe-launch-configurations ;;
       auto-scaling-groups)
-        cmd_aws autoscaling describe-auto-scaling-groups > "$cache/auto-scaling-groups.json" ;;
+        cmd_aws autoscaling describe-auto-scaling-groups ;;
       iam-users)
-        cmd_aws iam list-users > "$cache/iam-users.json" ;;
+        cmd_aws iam list-users ;;
       iam-groups)
-        cmd_aws iam list-groups > "$cache/iam-groups.json" ;;
+        cmd_aws iam list-groups ;;
       iam-roles)
-        cmd_aws iam list-roles > "$cache/iam-roles.json" ;;
+        cmd_aws iam list-roles ;;
       s3-bucket)
-        cmd_aws s3api list-buckets > "$cache/s3-buckets.json" ;;
+        cmd_aws s3api list-buckets ;;
 			sns-topics)
-				cmd_aws sns list-topics > "$cache/sns-topics.json" ;;
+				cmd_aws sns list-topics ;;
 			sns-subscriptions)
-				cmd_aws sns list-subscriptions > "$cache/sns-list-subscriptions.json" ;;
+				cmd_aws sns list-subscriptions ;;
 			sqs-queues)
-				cmd_aws sqs list-queues > "$cache/sqs-list-queues.json" ;;
-    esac
-    shift
+				cmd_aws sqs list-queues ;;
+      vpc-endoint-services)
+        cmd_aws ec2 describe-vpc-endpoint-services ;;
+      vpc-endoints)
+        cmd_aws ec2 describe-vpc-endpoints ;;
+      vpc-peering-connections)
+        cmd_aws ec2 describe-vpc-peering-connections ;;
+      vpn-connections)
+        cmd_aws ec2 describe-vpn-connections ;;
+      vpn-gateways)
+        cmd_aws ec2 describe-vpn-gateways ;;
+    esac > "$cache/$nm_resource.json"
   done
 }
 
