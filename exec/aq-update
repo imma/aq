@@ -5,6 +5,10 @@ function cmd_aws {
   aws "$@" | jq -S .
 }
 
+function id_account {
+  aws iam get-user | jq -r '.User.Arn | split(":")[4]'
+}
+
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
@@ -34,8 +38,7 @@ function main {
       images-ubuntu)
         cmd_aws ec2 describe-images --owners 099720109477 | jq -S '.Images = (.Images | sort_by(.Name))' ;;
       images)
-        local id_account="$(aws iam get-user | jq -r '.User.Arn | split(":")[4]')"
-        cmd_aws ec2 describe-images --owners "$id_account" | jq -S '.Images = (.Images | sort_by(.Name))' ;;
+        cmd_aws ec2 describe-images --owners "$(id_account)" | jq -S '.Images = (.Images | sort_by(.Name))' ;;
       vpcs)
         cmd_aws ec2 describe-vpcs ;;
       subnets)
@@ -55,7 +58,7 @@ function main {
       volumes)
         cmd_aws ec2 describe-volumes ;;
       snapshots)
-        cmd_aws ec2 describe-snapshots ;;
+        cmd_aws ec2 describe-snapshots --owners "$(id_account)" ;;
       key-pairs)
         cmd_aws ec2 describe-key-pairs ;;
       load-balancers)
