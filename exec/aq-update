@@ -64,7 +64,7 @@ function main {
       tags)
         cmd_aws "$nm_resource" ec2 describe-tags | jq -S '.Tags |= sort_by([.ResourceType,.ResourceId,.Key,.Value])' ;;
       volumes)
-        cmd_aws "$nm_resource" ec2 describe-volumes ;;
+        cmd_aws "$nm_resource" ec2 describe-volumes | jq -S '.Volumes[].Attachments |= sort_by(.VolumeId)' ;;
       snapshots)
         cmd_aws "$nm_resource" ec2 describe-snapshots --owner-ids "$(id_account)" ;;
       key-pairs)
