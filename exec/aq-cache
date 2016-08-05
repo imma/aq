@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+export AQ_CACHE=1
+
+source sub-middleware "$BASH_SOURCE" "$@"
