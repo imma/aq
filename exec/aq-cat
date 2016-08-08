@@ -5,8 +5,13 @@ function main {
   source "$shome/script/profile"
 
   local nm_resource="$1"; shift
+
+  if [[ "$#" == 0 ]]; then
+    set -- .
+  fi
+
   local cache="$shome/.cache"
-  cat "$cache/$nm_resource.json"
+  cat "$cache/$nm_resource.json" | jq -r -S "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
