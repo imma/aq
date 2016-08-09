@@ -56,7 +56,7 @@ function main {
       images-ubuntu)
         local id_ubuntu='099720109477'
         cmd_aws "$nm_resource" ec2 describe-images --owners "$id_ubuntu" --filters Name=architecture,Values=x86_64 Name=virtualization-type,Values=hvm Name=state,Values=available \
-          | jq -S '.Images |= sort_by(.Name) | .Images[].BlockDeviceMappings |= sort_by(.DeviceName)' ;;
+          | jq -S '.Images |= (map(select(.Name | test("trusty|xenial"))) | sort_by(.Name)) | .Images[].BlockDeviceMappings |= sort_by(.DeviceName)' ;;
       images)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" --owners "$(id_account)" | jq -S '.Images |= sort_by(.Name) | .Images[].BlockDeviceMappings |= sort_by(.DeviceName)' ;;
       vpcs)
