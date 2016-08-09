@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+function resources {
+  echo \
+    instances images-ubuntu images vpcs subnets network-acls internet-gateways \
+    route-tables addresses security-groups tags volumes snapshots key-pairs \
+    load-balancers launch-configurations auto-scaling-groups iam-users \
+    iam-groups iam-roles iam-policies iam-account-aliases iam-instance-profiles \
+    iam-roles iam-server-certificates iam-signing-certificates \
+    iam-ssh-public-keys iam-users iam-virtual-mfa-devices s3-buckets sns-topics \
+    sns-subscriptions sqs-queues vpc-endpoint-services vpc-endpoints \
+    vpc-peering-connections vpn-connections vpn-gateways route53-hosted-zones
+}
+
 function cmd_aws {
   local nm_resource="$1"; shift
 
@@ -23,18 +35,7 @@ function main {
   mkdir -p "$shome/.cache"
 
   if [[ "$#" == 0 ]]; then
-    set -- \
-            instances images-ubuntu images vpcs subnets network-acls \
-            internet-gateways route-tables addresses security-groups tags \
-            volumes snapshots key-pairs load-balancers launch-configurations \
-						auto-scaling-groups iam-users iam-groups iam-roles iam-policies \
-            iam-account-aliases iam-instance-profiles iam-roles \
-            iam-server-certificates iam-signing-certificates \
-            iam-ssh-public-keys iam-users iam-virtual-mfa-devices \
-            s3-buckets \
-            sns-topics sns-subscriptions sqs-queues vpc-endpoint-services \
-            vpc-endpoints vpc-peering-connections vpn-connections vpn-gateways \
-            route53-hosted-zones
+    set -- $(resources)
     echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
     return $?
   fi
@@ -44,6 +45,10 @@ function main {
   local nm_resource
   for nm_resource in "$@"; do
     case "$nm_resource" in
+      list)
+        resources 1>&2
+        break
+        ;;
       instances)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       images-ubuntu)
