@@ -6,7 +6,7 @@ function main {
 
   if [[ "$#" == 0 ]]; then
     echo "syntax nm_resource jq_query_args..." 1>&2
-    return 0
+    exec aq list
   fi
 
   local nm_resource="$1"; shift
