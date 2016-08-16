@@ -38,21 +38,24 @@ function main {
 
   if [[ "$#" == 0 ]]; then
     set -- $(resources)
-    echo "$@" | runmany 4 "$BASH_SOURCE"' $1' 
+    echo "$@" | runmany 4 "$BASH_SOURCE"' $1' >/dev/null
     return $?
   fi
 
   local cache="$shome/.cache"
 
+  case "${1:-}" in
+    list)
+      for a in $(resources); do
+        echo "$a" 2>&1
+      done
+      return
+      ;;
+  esac
+
   local nm_resource
   for nm_resource in "$@"; do
     case "$nm_resource" in
-      list)
-        for a in $(resources); do
-          echo "$a" 1>&2
-        done
-        break
-        ;;
       instances)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       instance-status)
