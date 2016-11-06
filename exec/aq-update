@@ -6,7 +6,7 @@ function resources {
     route-tables addresses security-groups tags volumes snapshots key-pairs \
     load-balancers launch-configurations auto-scaling-groups iam-users \
     iam-groups iam-roles iam-policies iam-account-aliases iam-instance-profiles \
-    iam-roles iam-server-certificates iam-users iam-virtual-mfa-devices s3-buckets sns-topics \
+    iam-server-certificates iam-users iam-virtual-mfa-devices s3-buckets sns-topics \
     sns-subscriptions sqs-queues vpc-endpoint-services vpc-endpoints \
     vpc-peering-connections vpn-connections vpn-gateways route53-hosted-zones \
     volume-status instance-status
