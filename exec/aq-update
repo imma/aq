@@ -34,7 +34,7 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  mkdir -p "$shome/.cache"
+  mkdir -p "$AQ_STATE"
 
   if [[ "$#" == 0 ]]; then
     set -- $(resources)
@@ -42,7 +42,7 @@ function main {
     return $?
   fi
 
-  local cache="$shome/.cache"
+  local cache="$AQ_STATE"
 
   case "${1:-}" in
     list)

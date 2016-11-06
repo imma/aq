@@ -10,7 +10,7 @@ function main {
     set -- .
   fi
 
-  local cache="$shome/.cache"
+  local cache="$AQ_STATE"
   cat "$cache/$nm_resource.json" | jq -r -S "$@"
 }
 
