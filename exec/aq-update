@@ -6,8 +6,7 @@ function resources {
     route-tables addresses security-groups tags volumes snapshots key-pairs \
     load-balancers launch-configurations auto-scaling-groups iam-users \
     iam-groups iam-roles iam-policies iam-account-aliases iam-instance-profiles \
-    iam-roles iam-server-certificates iam-signing-certificates \
-    iam-ssh-public-keys iam-users iam-virtual-mfa-devices s3-buckets sns-topics \
+    iam-roles iam-server-certificates iam-users iam-virtual-mfa-devices s3-buckets sns-topics \
     sns-subscriptions sqs-queues vpc-endpoint-services vpc-endpoints \
     vpc-peering-connections vpn-connections vpn-gateways route53-hosted-zones \
     volume-status instance-status
@@ -109,10 +108,6 @@ function main {
       iam-instance-profiles)
         cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
       iam-server-certificates)
-        cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
-      iam-signing-certificates)
-        cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
-      iam-ssh-public-keys)
         cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
       iam-virtual-mfa-devices)
         cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
