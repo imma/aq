@@ -98,7 +98,7 @@ function main {
       iam-roles)
         cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
       iam-policies)
-        cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
+        cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" --scope Local ;;
       iam-account-aliases)
         cmd_aws "$nm_resource" iam "${nm_resource/iam-/list-}" ;;
       iam-instance-profiles)
