@@ -17,31 +17,18 @@ function cmd_aws {
   local nm_resource="$1"; shift
 
   echo "aws $@" 1>&2
-
-  if [[ -n "${AQ_CACHE:-}" ]]; then
-    aq cat "$nm_resource"
-  else
-    aws "$@" | jq -S .
-  fi
-}
-
-function id_account {
-  echo "${AQ_ACCOUNT_ID}"
+  aws "$@" | jq -S .
 }
 
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  mkdir -p "$AQ_STATE"
-
   if [[ "$#" == 0 ]]; then
     set -- $(resources)
-    echo "$@" | runmany 4 "$BASH_SOURCE"' $1' >/dev/null
+    echo "$@" | runmany "$BASH_SOURCE"' $1'
     return $?
   fi
-
-  local cache="$AQ_STATE"
 
   case "${1:-}" in
     list)
@@ -60,7 +47,7 @@ function main {
       instance-status)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       images)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" --owners "$(id_account)" | jq -S '.Images |= sort_by(.Name) | .Images[].BlockDeviceMappings |= sort_by(.DeviceName)' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" --owners self ;;
       vpcs)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       subnets)
@@ -70,19 +57,19 @@ function main {
       internet-gateways)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       route-tables)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" | jq -S '.RouteTables[].Routes |= sort_by(.DestinationCidrBlock)' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       addresses)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" | jq -S '.Addresses |= sort_by(.PublicIp)' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       security-groups)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" | jq -S '.SecurityGroups |= sort_by([.GroupId, .GroupName])' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       tags)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" | jq -S '.Tags |= sort_by([.ResourceType,.ResourceId,.Key,.Value])' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       volumes)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" | jq -S '.Volumes[].Attachments |= sort_by(.VolumeId)' ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       volume-status)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       snapshots)
-        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" --owner-ids "$(id_account)" ;;
+        cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" --owner-ids self ;;
       key-pairs)
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       load-balancers)
@@ -127,8 +114,7 @@ function main {
         cmd_aws "$nm_resource" ec2 "describe-${nm_resource}" ;;
       route53-hosted-zones)
         cmd_aws "$nm_resource" route53 "${nm_resource/route53-/list-}" ;;
-    esac > "$cache/$nm_resource.json.1"
-    mv "$cache/$nm_resource.json.1" "$cache/$nm_resource.json"
+    esac
 
   done
 }
